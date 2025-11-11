@@ -53,7 +53,7 @@ public class MainFrame extends javax.swing.JFrame {
         txtNim = new javax.swing.JTextField();
         lblNama = new javax.swing.JLabel();
         lblNim = new javax.swing.JLabel();
-        btnSubmit = new javax.swing.JButton();
+        btnTambah = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblMhs = new javax.swing.JTable();
         btnHapus = new javax.swing.JButton();
@@ -74,10 +74,10 @@ public class MainFrame extends javax.swing.JFrame {
 
         lblNim.setText("Masukan Nim");
 
-        btnSubmit.setText("Submit");
-        btnSubmit.addActionListener(new java.awt.event.ActionListener() {
+        btnTambah.setText("Tambah");
+        btnTambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSubmitActionPerformed(evt);
+                btnTambahActionPerformed(evt);
             }
         });
 
@@ -137,10 +137,11 @@ public class MainFrame extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnTampilkan)
                         .addGap(18, 18, 18)
+                        .addComponent(btnTambah)
+                        .addGap(17, 17, 17)
                         .addComponent(btnHapus)
                         .addGap(18, 18, 18)
                         .addComponent(btnEdit))
-                    .addComponent(btnSubmit)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblNim, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -168,13 +169,12 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtTahunMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblTahunMasuk))
-                .addGap(18, 18, 18)
-                .addComponent(btnSubmit)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(53, 53, 53)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnEdit)
                     .addComponent(btnHapus)
-                    .addComponent(btnTampilkan))
+                    .addComponent(btnTampilkan)
+                    .addComponent(btnTambah))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 58, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(22, 22, 22))
@@ -187,7 +187,7 @@ public class MainFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNamaActionPerformed
 
-    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
                                       
       String nama = txtNama.getText().trim();
       String nim = txtNim.getText().trim();
@@ -235,7 +235,7 @@ public class MainFrame extends javax.swing.JFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Tahun Masuk harus berupa angka!");
         }
         
-    }//GEN-LAST:event_btnSubmitActionPerformed
+    }//GEN-LAST:event_btnTambahActionPerformed
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
                     // TODO add your handling code here:
@@ -320,7 +320,7 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnHapus;
-    private javax.swing.JButton btnSubmit;
+    private javax.swing.JButton btnTambah;
     private javax.swing.JButton btnTampilkan;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblNama;
