@@ -103,4 +103,44 @@ public class JavaDataBase {
         }
         return false;
     }
+    
+    public static boolean insertWithId(mahasiswa m) {
+    String sql = "INSERT INTO mahasiswa (id, nama, nim, tahunMasuk) VALUES (?, ?, ?, ?)";
+    try (Connection conn = getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, m.getId());
+        stmt.setString(2, m.getNama());
+        stmt.setString(3, m.getNim());
+        stmt.setInt(4, m.getTahunMasuk());
+        return stmt.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        System.out.println("Error insertWithId: " + e.getMessage());
+        return false;
+    }
+}
+    public static mahasiswa getById(int id) {
+    String sql = "SELECT * FROM mahasiswa WHERE id=?";
+    try (Connection conn = getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            mahasiswa m = new mahasiswa(
+                rs.getString("nim"),
+                rs.getString("nama"),
+                rs.getInt("tahunMasuk")
+            );
+            m.setId(rs.getInt("id"));
+            return m;
+        }
+    } catch (Exception e) {
+        System.out.println("Error getById: " + e.getMessage());
+    }
+    return null;
+}
+
 }

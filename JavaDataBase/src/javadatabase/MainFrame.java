@@ -5,6 +5,11 @@
 package javadatabase;
 
 import javax.swing.table.DefaultTableModel;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import javax.swing.JFileChooser;
+
 
 /**
  *
@@ -61,6 +66,7 @@ public class MainFrame extends javax.swing.JFrame {
         txtTahunMasuk = new javax.swing.JTextField();
         lblTahunMasuk = new javax.swing.JLabel();
         btnTampilkan = new javax.swing.JButton();
+        btnUpload = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -123,6 +129,13 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        btnUpload.setText("Upload csv");
+        btnUpload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUploadActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -135,14 +148,6 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGap(108, 108, 108)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnTampilkan)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnTambah)
-                        .addGap(17, 17, 17)
-                        .addComponent(btnHapus)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnEdit))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblNim, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(lblTahunMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -151,7 +156,17 @@ public class MainFrame extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(txtTahunMasuk)
                             .addComponent(txtNama, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
-                            .addComponent(txtNim))))
+                            .addComponent(txtNim)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnUpload)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnTampilkan)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnTambah)
+                        .addGap(17, 17, 17)
+                        .addComponent(btnHapus)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEdit)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -174,7 +189,8 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(btnEdit)
                     .addComponent(btnHapus)
                     .addComponent(btnTampilkan)
-                    .addComponent(btnTambah))
+                    .addComponent(btnTambah)
+                    .addComponent(btnUpload))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 58, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(22, 22, 22))
@@ -282,6 +298,75 @@ public class MainFrame extends javax.swing.JFrame {
          loadData(); // Load ulang data dari DB
     }//GEN-LAST:event_btnTampilkanActionPerformed
 
+    private void btnUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUploadActionPerformed
+        // TODO add your handling code here:                                          
+    JFileChooser chooser = new JFileChooser();
+    int result = chooser.showOpenDialog(this);
+
+    if (result == JFileChooser.APPROVE_OPTION) {
+        File file = chooser.getSelectedFile();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+
+            String baris;
+            int sukses = 0, gagal = 0;
+
+            while ((baris = br.readLine()) != null) {
+
+                baris = baris.replace("\uFEFF", "").trim();
+                String[] data = baris.split(";");
+
+                // Skip header atau data kurang
+                if (data.length < 4 || data[0].equalsIgnoreCase("id")) {
+                    continue;
+                }
+
+                try {
+                    int id = Integer.parseInt(data[0].trim());
+                    String nama = data[1].trim();
+                    String nim = data[2].trim();
+                    int tahunMasuk = Integer.parseInt(data[3].trim());
+
+                    mahasiswa m = new mahasiswa(nim, nama, tahunMasuk);
+                    m.setId(id);
+
+                    // Cek apakah ID sudah ada di database
+                    mahasiswa existing = JavaDataBase.getById(id);
+
+                    if (existing == null) {
+                        // Insert pake ID manual
+                        if (JavaDataBase.insertWithId(m)) {
+                            sukses++;
+                        } else {
+                            gagal++;
+                        }
+                    } else {
+                        // Update
+                        if (JavaDataBase.update(m)) {
+                            sukses++;
+                        } else {
+                            gagal++;
+                        }
+                    }
+
+                } catch (Exception e) {
+                    gagal++;
+                }
+
+            }
+
+            loadData();
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Upload selesai!\nBerhasil: " + sukses + "\nGagal: " + gagal);
+
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Gagal membaca file: " + e.getMessage());
+        }
+    }
+
+    }//GEN-LAST:event_btnUploadActionPerformed
+
     /**
      * @param args  command line arguments
      */
@@ -322,6 +407,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnHapus;
     private javax.swing.JButton btnTambah;
     private javax.swing.JButton btnTampilkan;
+    private javax.swing.JButton btnUpload;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblNama;
     private javax.swing.JLabel lblNim;
