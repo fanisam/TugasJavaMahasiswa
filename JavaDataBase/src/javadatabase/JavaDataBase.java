@@ -5,142 +5,106 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JavaDataBase {
+
     private static final String URL = "jdbc:postgresql://localhost:5432/JavaDataBase";
     private static final String USER = "postgres";
-    private static final String PASSWORD = "fanisam2025"; // Diperbaiki typo
+    private static final String PASSWORD = "fanisam2025";
 
     // KONEKSI
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    // INSERT - Mengembalikan ID yang di-generate
-    public static int insert(mahasiswa m) {
-        String sql = "INSERT INTO mahasiswa (nim, nama, tahunmasuk) VALUES (?, ?, ?)";
+    // ===================== INSERT =====================
+    public static boolean insert(mahasiswa m, String jenisMahasiswa) {
+        String sql = "INSERT INTO mahasiswa "
+                + "(nim, nama, tahunmasuk, jenis_mahasiswa, jumlah_sks, biaya_kuliah) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, m.getNim());
             ps.setString(2, m.getNama());
             ps.setInt(3, m.getTahunMasuk());
-            ps.executeUpdate();
+            ps.setString(4, jenisMahasiswa);
+            ps.setInt(5, m.getjumlahSKS());
+            ps.setDouble(6, m.hitungBiayaKuliah()); // POLYMORPHISM
 
-            // Ambil ID yang di-generate
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-            System.out.println("✅ Data berhasil disimpan ke database!");
+            ps.executeUpdate();
+            return true;
+
         } catch (SQLException e) {
             System.err.println("❌ Error insert: " + e.getMessage());
-            e.printStackTrace();
+            return false;
         }
-        return -1; // Jika gagal
     }
 
-    // READ
-    public static List<mahasiswa> getAll() {
-        List<mahasiswa> list = new ArrayList<>();
+    // ===================== READ =====================
+    public static List<Object[]> getAll() {
+        List<Object[]> list = new ArrayList<>();
         String sql = "SELECT * FROM mahasiswa ORDER BY id ASC";
+
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                mahasiswa item = new mahasiswa(
+                Object[] data = {
                     rs.getInt("id"),
-                    rs.getString("nim"),
                     rs.getString("nama"),
-                    rs.getInt("tahunmasuk")
-                );
-                list.add(item);
+                    rs.getString("nim"),
+                    rs.getString("jenis_mahasiswa"),
+                    rs.getInt("jumlah_sks"),
+                    rs.getDouble("biaya_kuliah")
+                };
+                list.add(data);
             }
+
         } catch (SQLException e) {
-            System.err.println("Error read: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("❌ Error read: " + e.getMessage());
         }
         return list;
     }
 
-    // UPDATE
-    public static boolean update(mahasiswa m) {
-        String sql = "UPDATE mahasiswa SET nama = ?, nim = ?, tahunmasuk = ? WHERE id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    // ===================== UPDATE =====================
+    public static boolean update(int id, mahasiswa m, String jenisMahasiswa) {
+        String sql = "UPDATE mahasiswa SET "
+                + "nama=?, nim=?, tahunmasuk=?, jenis_mahasiswa=?, jumlah_sks=?, biaya_kuliah=? "
+                + "WHERE id=?";
 
-            stmt.setString(1, m.getNama());
-            stmt.setString(2, m.getNim());
-            stmt.setInt(3, m.getTahunMasuk());
-            stmt.setInt(4, m.getId());
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Data berhasil diperbarui.");
-                return true;
-            }
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, m.getNama());
+            ps.setString(2, m.getNim());
+            ps.setInt(3, m.getTahunMasuk());
+            ps.setString(4, jenisMahasiswa);
+            ps.setInt(5, m.getjumlahSKS());
+            ps.setDouble(6, m.hitungBiayaKuliah());
+            ps.setInt(7, id);
+
+            return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
-            System.err.println("Error update: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("❌ Error update: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 
-    // DELETE
+    // ===================== DELETE =====================
     public static boolean delete(int id) {
-        String sql = "DELETE FROM mahasiswa WHERE id = ?";
+        String sql = "DELETE FROM mahasiswa WHERE id=?";
+
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Data berhasil dihapus dari database!");
-                return true;
-            }
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
-            System.err.println("Error delete: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("❌ Error delete: " + e.getMessage());
+            return false;
         }
-        return false;
     }
-    
-    public static boolean insertWithId(mahasiswa m) {
-    String sql = "INSERT INTO mahasiswa (id, nama, nim, tahunMasuk) VALUES (?, ?, ?, ?)";
-    try (Connection conn = getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-        stmt.setInt(1, m.getId());
-        stmt.setString(2, m.getNama());
-        stmt.setString(3, m.getNim());
-        stmt.setInt(4, m.getTahunMasuk());
-        return stmt.executeUpdate() > 0;
-
-    } catch (SQLException e) {
-        System.out.println("Error insertWithId: " + e.getMessage());
-        return false;
-    }
-}
-    public static mahasiswa getById(int id) {
-    String sql = "SELECT * FROM mahasiswa WHERE id=?";
-    try (Connection conn = getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-        stmt.setInt(1, id);
-        ResultSet rs = stmt.executeQuery();
-
-        if (rs.next()) {
-            mahasiswa m = new mahasiswa(
-                rs.getString("nim"),
-                rs.getString("nama"),
-                rs.getInt("tahunMasuk")
-            );
-            m.setId(rs.getInt("id"));
-            return m;
-        }
-    } catch (Exception e) {
-        System.out.println("Error getById: " + e.getMessage());
-    }
-    return null;
-}
-
 }

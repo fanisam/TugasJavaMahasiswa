@@ -1,19 +1,23 @@
 package javadatabase;
 
-public class mahasiswa {
+public abstract class mahasiswa {
     private int id;
     private String nim;
     private String nama;
     private int tahunMasuk;
+    public int jumlahSKS;
 
     // Constructor dengan ID
-    public mahasiswa(int id, String nim, String nama, int tahunMasuk) {
+    public mahasiswa(int id, String nim, String nama, int tahunMasuk, int jumlahSKS) {
         this.id = id;
         this.nim = nim;
         this.nama = nama;
         this.tahunMasuk = tahunMasuk;
+        this.jumlahSKS = jumlahSKS;
     }
-
+    
+    public abstract double hitungBiayaKuliah(); // POLYMORPHISM
+    
     // Constructor tanpa ID
     public mahasiswa(String nim, String nama, int tahunMasuk) {
         this.nim = nim;
@@ -57,4 +61,9 @@ public class mahasiswa {
     public void setTahunMasuk(int tahunMasuk) {
         this.tahunMasuk = tahunMasuk;
     }
+    
+    public int getjumlahSKS () {
+        return jumlahSKS;
+    }
+    
 }
